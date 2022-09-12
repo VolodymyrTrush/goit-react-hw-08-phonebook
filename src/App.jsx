@@ -1,66 +1,32 @@
-import { useDispatch } from "react-redux";
-import { useEffect, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
-import { PublicRoute } from "./components/Routes/PublicRoute";
-import { PrivateRoute } from "./components/Routes/PrivateRoute";
-import { AppBar } from "./components/AppBar/AppBar";
-import { GlobalStyle } from "./common/GlobalStyle";
-import { authOperations } from "./redux/auth/authOperations";
-import { StartPage } from "./pages/HomePage/HomePage";
-import { LoginPage } from "./pages/LoginPage/LoginPage";
-import { RegisterPage } from "./pages/RegisterPage/RegisterPage";
-import { Phonebook } from "./pages/Phonebook/Phonebook";
+import 'modern-normalize';
+import { lazy, Suspense } from "react";
+import { Routes, Route } from "react-router-dom";
+import { PublicRoute } from "hocs/PublicRoute";
+import { PrivateRoute } from "hocs/PrivateRoute";
+import { Loader } from 'components/common/Loader/Loader';
+
+const AppBar = lazy(() => import('layouts/AppBar'))
+const Contacts = lazy(() => import('pages/Contacts/Contacts'));
+const Home = lazy(() => import('pages/Home'));
+const Login = lazy(() => import('pages/Login/Login'));
+const Register = lazy(() => import('pages/Register/Register'));
 
 export const App = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(authOperations.fetchCurrentUser());
-  }, [dispatch]);
-
   return (
-    <>
-      <GlobalStyle />
-      <AppBar />
-      <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loader />}>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <PublicRoute>
-                <StartPage />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              <PublicRoute>
-                <RegisterPage />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/contacts"
-            element={
-              <PrivateRoute>
-                <Phonebook />
-              </PrivateRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/" element={<AppBar />}>
+            <Route index path="/"
+              element={<PublicRoute><Home /></PublicRoute>} />
+            <Route path="login"
+              element={<PublicRoute restricted><Login /></PublicRoute>} />
+            <Route path="register"
+              element={<PublicRoute restricted><Register /></PublicRoute>} />
+            <Route path='contacts'
+              element={<PrivateRoute><Contacts /></PrivateRoute>} />
+            <Route path="*" element={<Home />} />
+          </Route>
         </Routes>
-        <Toaster />
-      </Suspense>
-    </>
+    </Suspense>
   );
 };

@@ -18,6 +18,5 @@ export const BodyContainer = styled.div`
     padding: 0 200px;
   }
 
-  background-color: #0861f3;
-  
+  background-color: #088df3;
 `;
